@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WhatsApp Button</title>
     <style>
+        /* CSS content remains the same */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Poppins:wght@300&display=swap');
 
         * {
@@ -73,7 +74,7 @@
 </head>
 <body>
     <div class="button-container">
-        <button class="whatsapp-button" id="whatsappButton">
+        <button class="whatsapp-button" id="tombolkonsul">
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" class="whatsapp-logo" alt="WhatsApp Logo">
             <div class="text-container">
                 <div>Chat via WhatsApp</div>
@@ -92,35 +93,26 @@
             return inboundID;
         }
 
-        function pushToDataLayer(inboundID) {
-            const timestamp = new Date().toLocaleString("en-GB", { timeZone: "Asia/Jakarta" });
-            try {
-                if (typeof window.dataLayer === 'undefined') {
-                    console.warn('DataLayer is not defined. Initializing it now.');
-                    window.dataLayer = [];
-                }
-                window.dataLayer.push({
-                    event: 'whatsapp_click',
-                    inboundID: inboundID,
-                    timestamp: timestamp
-                });
-                console.log('Data pushed to dataLayer:', { event: 'whatsapp_click', inboundID, timestamp });
-            } catch (error) {
-                console.error('Error pushing to dataLayer:', error);
-            }
-        }
-
         function generateWhatsAppURL(inboundID) {
             const message = `Halo, saya mau pesan mGanik Metafiber, boleh di bantu?\n\nKode Unik Pelanggan *${inboundID}*, _Jangan Hapus Kode Unik Anda_`;
             const phoneNumber = "6282289777177";
             return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
         }
 
-        document.getElementById('whatsappButton').addEventListener('click', function () {
+        // Event listener to detect button click and open WhatsApp link
+        document.getElementById('tombolkonsul').addEventListener('click', function (event) {
             const inboundID = generateUniqueInboundID();
-            pushToDataLayer(inboundID);
             const whatsappURL = generateWhatsAppURL(inboundID);
-            window.location.href = whatsappURL;
+
+            // Push to dataLayer with actual element id as 'gtm.elementId'
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                event: 'gtm.click',
+                inboundID: inboundID,
+                'gtm.elementId': event.target.id || event.currentTarget.id // Capture id dynamically as gtm.elementId
+            });
+
+            window.open(whatsappURL, '_blank');
         });
 
         function isElementInViewport(el) {
@@ -134,7 +126,7 @@
         }
 
         function handleScroll() {
-            const button = document.getElementById('whatsappButton');
+            const button = document.getElementById('tombolkonsul');
             if (isElementInViewport(button) && !button.classList.contains('animated')) {
                 button.classList.add('animate');
                 button.classList.add('animated');
