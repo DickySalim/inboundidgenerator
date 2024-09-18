@@ -2,11 +2,179 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Button Generator</title>
+    <style>
+        /* Minimalistic styling */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        /* Headline and Subtitle */
+        .container h1 {
+            margin-bottom: 10px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .container h2 {
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: normal;
+            color: #666;
+            text-align: center;
+        }
+
+        .field-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .color-input {
+            display: flex;
+            align-items: center;
+        }
+
+        .color-input span {
+            margin-right: 5px;
+            font-size: 18px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #generate-btn {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #25D366;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        #generate-btn:hover {
+            background-color: #1ebe5b;
+        }
+
+        .output-container {
+            margin-top: 20px;
+        }
+
+        #copy-btn {
+            float: right;
+            margin-bottom: 10px;
+            padding: 6px 10px;
+            font-size: 14px;
+            background-color: #ccc;
+            color: #000;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #copy-btn:hover {
+            background-color: #bbb;
+        }
+
+        #output-code {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            overflow-y: scroll;
+            white-space: pre;
+            background-color: #f9f9f9;
+            font-family: Consolas, monospace;
+        }
+
+        /* Clear floats */
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generate Inbound ID Button</h1>
+        <h2>Kode Inbound yang di generate masih random, belum ada rumus. Untuk proof of concept dulu aja</h2>
+        <div class="field-group">
+            <label for="click-id">Click ID</label>
+            <input type="text" id="click-id" placeholder="Enter Click ID">
+        </div>
+        <div class="field-group">
+            <label for="greetings">Greetings</label>
+            <input type="text" id="greetings" placeholder="Enter Greetings Message">
+        </div>
+        <div class="field-group">
+            <label for="bg-color">Background Color</label>
+            <div class="color-input">
+                <span>#</span>
+                <input type="text" id="bg-color" maxlength="6" placeholder="e.g., FFFFFF">
+            </div>
+        </div>
+        <button id="generate-btn">Generate</button>
+        <div class="output-container">
+            <div class="clearfix">
+                <button id="copy-btn">Copy</button>
+            </div>
+            <textarea id="output-code" readonly></textarea>
+        </div>
+    </div>
+
+    <script>
+        const generateBtn = document.getElementById('generate-btn');
+        const copyBtn = document.getElementById('copy-btn');
+        const outputCode = document.getElementById('output-code');
+
+        const escapeHTML = (str) => {
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;')
+                      .replace(/'/g, '&#039;');
+        };
+
+        const templateCode = (clickId, greetings, bgColor) => {
+            const escapedGreetings = greetings.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/'/g, '\\\'').replace(/"/g, '\\"');
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
     <title>WhatsApp Button</title>
     <style>
         /* CSS content remains the same */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Poppins:wght@300&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;700&display=swap');
 
         * {
             margin: 0;
@@ -14,9 +182,13 @@
             box-sizing: border-box;
         }
 
-        .whatsapp-button {
+        body {
             font-family: 'Poppins', sans-serif;
-            font-weight: bold;
+            background-color: #${bgColor};
+        }
+
+        .whatsapp-button {
+            font-weight: 700;
             background: linear-gradient(145deg, #1ebe5b, #25D366, #1ebe5b);
             color: white;
             border: none;
@@ -48,7 +220,6 @@
         }
 
         .subtitle {
-            font-family: 'Poppins', sans-serif;
             font-weight: 300;
             font-size: 12px;
             color: #f5f5f5;
@@ -74,7 +245,7 @@
 </head>
 <body>
     <div class="button-container">
-        <button class="whatsapp-button" id="tombolkonsul">
+        <button class="whatsapp-button" id="${clickId}">
             <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/WhatsApp_icon.png" class="whatsapp-logo" alt="WhatsApp Logo">
             <div class="text-container">
                 <div>Chat via WhatsApp</div>
@@ -94,13 +265,13 @@
         }
 
         function generateWhatsAppURL(inboundID) {
-            const message = `Halo, saya mau pesan mGanik Metafiber, boleh di bantu?\n\nKode Unik Pelanggan *${inboundID}*, _Jangan Hapus Kode Unik Anda_`;
+            const message = '${escapedGreetings}\\n\\nKode Unik Pelanggan *' + inboundID + '*, _Jangan Hapus Kode Unik Anda_';
             const phoneNumber = "6282289777177";
-            return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+            return 'https://wa.me/' + phoneNumber + '?text=' + encodeURIComponent(message);
         }
 
         // Event listener to detect button click and open WhatsApp link
-        document.getElementById('tombolkonsul').addEventListener('click', function (event) {
+        document.getElementById('${clickId}').addEventListener('click', function (event) {
             const inboundID = generateUniqueInboundID();
             const whatsappURL = generateWhatsAppURL(inboundID);
 
@@ -109,7 +280,7 @@
             window.dataLayer.push({
                 event: 'gtm.click',
                 inboundID: inboundID,
-                'gtm.elementId': event.target.id || event.currentTarget.id // Capture id dynamically as gtm.elementId
+                'gtm.elementId': event.currentTarget.id
             });
 
             window.open(whatsappURL, '_blank');
@@ -126,10 +297,9 @@
         }
 
         function handleScroll() {
-            const button = document.getElementById('tombolkonsul');
+            const button = document.getElementById('${clickId}');
             if (isElementInViewport(button) && !button.classList.contains('animated')) {
-                button.classList.add('animate');
-                button.classList.add('animated');
+                button.classList.add('animate', 'animated');
             }
         }
 
@@ -143,6 +313,25 @@
             } else {
                 console.log('DataLayer is accessible.');
             }
+        });
+    <\/script>
+</body>
+</html>`;
+        };
+
+        generateBtn.addEventListener('click', () => {
+            const clickId = document.getElementById('click-id').value.trim() || 'tombolkonsul';
+            const greetings = document.getElementById('greetings').value.trim() || 'Halo, saya mau pesan mGanik Metafiber, boleh di bantu?';
+            const bgColorInput = document.getElementById('bg-color').value.trim().toUpperCase() || 'FFFFFF';
+            const bgColor = /^[0-9A-F]{6}$/.test(bgColorInput) ? bgColorInput : 'FFFFFF';
+            const code = templateCode(clickId, greetings, bgColor);
+            outputCode.value = code;
+        });
+
+        copyBtn.addEventListener('click', () => {
+            outputCode.select();
+            document.execCommand('copy');
+            alert('Code copied to clipboard!');
         });
     </script>
 </body>
